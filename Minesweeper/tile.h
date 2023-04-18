@@ -3,43 +3,27 @@
 #include <SFML/Graphics.hpp>
 
 class Tile {
-    bool isRevealed;
-    bool isFlagged;
-    bool isMine;
+    bool revealed;
+    bool hasFlag;
     int nearbyMines;
     vector<Tile*> neighbors;
 
-    sf::Sprite* tile = new sf::Sprite;
-    sf::Sprite* sprite = new sf::Sprite;
-    sf::Sprite* flagged = new sf::Sprite;
+    sf::Sprite sprite;
+    sf::Sprite flag;
+    sf::Sprite number;
+    sf::Sprite mine;
 
 
 public:
+    bool isMine;
     Tile();
-    Tile(Texture* texture, Texture* flagged);
-    ~Tile();
-
-    // Getters
-    sf::Sprite* getHidden();
-    sf::Sprite* getRevealed();
-    sf::Sprite* getFlagged();
-
-    bool getIsRevealed();
-    bool getIsFlagged();
-    bool getIsMine();
-    int getNearbyMines();
-    vector<Tile*> getNeighbors();
-
-    // Setters
-    void setIsRevealed(bool isRevealed);
-    void setIsFlagged(bool isFlagged);
-    void setIsMine(bool isMine);
-    void setNearbyMines(int nearbyMines);
+    void reveal();
+    void flag();
+    void setMine();
     void setNeighbors(vector<Tile*> neighbors);
-
-    // Other methods
-    void move(float x, float y);
-    void createMine();
-    void draw(sf::RenderWindow& window);
-    
-}
+    void draw(sf::RenderWindow &window);
+    void isMine();
+    bool isRevealed();
+    bool isFlagged();
+    int getNearbyMines();
+};
