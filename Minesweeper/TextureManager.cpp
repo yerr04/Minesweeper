@@ -1,6 +1,6 @@
 #include "TextureManager.h"
 
-map<string, sf::Texture> TextureManager::textures;
+unordered_map<string, sf::Texture> TextureManager::textures;
 
 void TextureManager::LoadTextures(string name) {
     sf::Texture texture;

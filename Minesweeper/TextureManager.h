@@ -1,15 +1,14 @@
-#include <iostream>
 #include <SFML/Graphics.hpp>
-#include <vector>
 #include <string>
+#include <unordered_map>
 
 using namespace std;
 
 class TextureManager {
-    static map<string, sf::Texture> textures;
-    static void LoadTextures(string name);
+    unordered map<string, sf::Texture> textures;
+    void LoadTextures(string name);
 
 public:
-    static sf::Texture& getTexture(string name);
-    static void Clear();
+    sf::Texture& getTexture(string name);
+    void Clear();
 };

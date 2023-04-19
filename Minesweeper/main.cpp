@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Minesweeper");
@@ -126,6 +127,15 @@ int main()
                 if (event.type == sf::Event::Closed) {
                     gameWindow.close();
                 }
+                // Handle mouse click events
+                if (event.type == sf::Event::MouseButtonPressed) {
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+						// Left click
+					}
+                    else if (event.mouseButton.button == sf::Mouse::Right) {
+						// Right click
+					}
+				}
             }
         }
     }
