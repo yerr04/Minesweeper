@@ -7,6 +7,9 @@ Tiles::Tiles() {
     isMine = false;
     isFlagged = false;
     isRevealed = false;
+    sprite.setTexture(TextureManager::getTexture("./files/images/tile_hidden.png"));
+    flagged.setTexture(TextureManager::getTexture("./files/images/flag.png"));
+    mine.setTexture(TextureManager::getTexture("./files/images/mine.png"));
 }
 
 Tiles::Tiles(int x, int y, bool isMine) {
@@ -18,8 +21,48 @@ Tiles::Tiles(int x, int y, bool isMine) {
     isRevealed = false;
 }
 
-void Tiles::setNeighbors(vector<Tiles*> neighbors) {
-    this->neighbors = neighbors;
+void Tiles::setNeighbors(vector<Tiles*> neighbors, int x, int y) {
+    if (x > 0)
+    {
+        this->neighbors.push_back(neighbors[x - 1 + y * 10]);
+        if (y > 0)
+        {
+            this->neighbors.push_back(neighbors[x - 1 + (y - 1) * 10]);
+        }
+        if (y < 9)
+        {
+            this->neighbors.push_back(neighbors[x - 1 + (y + 1) * 10]);
+        }
+            switch(adjmines){
+        case 0:
+            sprite.setTexture(TextureManager::getTexture("./files/images/tile_revealed.png"));
+            break;
+        case 1:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_1.png"));
+            break;
+        case 2:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_2.png"));
+            break;
+        case 3:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_3.png"));
+            break;
+        case 4:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_4.png"));
+            break;
+        case 5:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_5.png"));
+            break;
+        case 6:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_6.png"));
+            break;
+        case 7:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_7.png"));
+            break;
+        case 8:
+            sprite.setTexture(TextureManager::getTexture("./files/images/number_8.png"));
+            break;
+    }
+    }
 }
 
 void Tiles::setAdjMines() {

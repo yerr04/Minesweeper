@@ -18,7 +18,7 @@ class Tiles{
     public:
         Tiles();
         Tiles(int x, int y, bool isMine);
-        void setNeighbors(vector<Tiles*> neighbors);
+        void setNeighbors(vector<Tiles*> neighbors, int x, int y);
         void setAdjMines();
         void setRevealed();
         void setFlagged();
