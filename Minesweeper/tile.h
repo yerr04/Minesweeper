@@ -16,12 +16,17 @@ class Tile {
 
 public:
     bool isMine;
+    // default constructor
     Tile();
+    // setters
     void reveal();
     void flag();
     void setMine();
     void setNeighbors(vector<Tile*> neighbors);
+    // other functions
     void draw(sf::RenderWindow &window);
+    void setpos(int x, int y);
+    // getters
     void isMine();
     bool isRevealed();
     bool isFlagged();

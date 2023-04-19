@@ -9,26 +9,16 @@ Tile::Tile() {
     hasFlag = false;
     nearbyMines = 0;
     isMine = false;
-
-    sprite.setTexture(Textures::getTexture("tile"));
-    flag.setTexture(Textures::getTexture("flag"));
-    mine.setTexture(Textures::getTexture("mine"));
 }
 
-// getters
-bool Tile::isRevealed() {
-    return revealed;
+void Tile::reveal() {
+    revealed = true;
 }
 
-bool Tile::isFlagged() {
-    return hasFlag;
+void Tile::flag() {
+    hasFlag = true;
 }
 
-int Tile::getNearbyMines() {
-    return nearbyMines;
-}
-
-// setters
 void Tile::setMine() {
     isMine = true;
 }
@@ -37,33 +27,28 @@ void Tile::setNeighbors(vector<Tile*> neighbors) {
     this->neighbors = neighbors;
 }
 
-// other functions   
-void Tile::reveal() {
-    if (revealed) return;
-    revealed = true;
-    sprite.setTexture(Textures::getTexture("tile_revealed"));
-    if (isMine) return;
-    for (Tile* neighbor : neighbors) {
-        if (!neighbor->isMine) neighbor->reveal();
-    }
-}
-
-void Tile::flag() {
-    if (revealed) return;
-    hasFlag = !hasFlag;
-}
-
 void Tile::draw(sf::RenderWindow &window) {
-    if (revealed) {
-        if (isMine) {
-            window.draw(mine);
-        } else {
-            window.draw(number);
-        }
-    } else {
-        window.draw(sprite);
-        if (hasFlag) {
-            window.draw(flag);
-        }
+    if (isMine) {
+        mine.setTexture(TextureManager::getTexture(3));
+        window.draw(mine);
     }
+    else if (nearbyMines > 0) {
+        number.setTexture(TextureManager::getTexture(nearbyMines));
+        window.draw(number);
+    }
+    else {
+        sprite.setTexture(TextureManager::getTexture(1));
+        window.draw(sprite);
+    }
+}
+
+bool Tile::isMine() {
+    return isMine;
+}
+
+void Tile::setpos(int x, int y) {
+    sprite.setPosition(x, y);
+    flag.setPosition(x, y);
+    number.setPosition(x, y);
+    mine.setPosition(x, y);
 }
