@@ -1,23 +1,32 @@
-#include <fstream>
+#include <SFML/Graphics.hpp>
 #include "Tiles.h"
+#include "TextureManager.h"
+#include <string>
+#include <fstream>
 
 class Board {
-    int rows, cols, mines;
-    Tiles** tiles;
-    int getMines();
+	std::vector<std::vector<Tiles*>> tiles;
+	int rows, cols, mines;
+	bool debug, isGameOver, won;
+	int remainingTiles;
+
+	std::string score = "000";
 
 public:
-    Board(int rows, int cols, int mines);
-    void generateTiles(string board);
-    void clear();
-    void draw(sf::RenderWindow& window);
-    void reveal(int x, int y);
-    void flag(int x, int y);
-    bool isGameOver();
-    bool isGameWon();
-    int getRows();
-    int getCols();
-    int getMines();
-    Tiles* getTile(int x, int y);
-    ~Board();
+	Board();
+	Board(int rows, int cols, int mines);
+	~Board();
+	Tiles* getTile(int x, int y);
+	void setSprite(sf::Sprite* sprite, sf::Texture& texture);
+	void setNeighbors();
+
+	void draw(sf::RenderWindow& window);
+	void update();
+	void generateMines();
+	void reveal(int x, int y);
+	void loadFromFile(std::string filename);
+	void onClick(int x, int y, std::string click);
+	void flag(Tiles* tile);
+	void endGame();
+	void wingame();
 };

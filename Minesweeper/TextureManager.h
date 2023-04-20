@@ -5,10 +5,12 @@
 using namespace std;
 
 class TextureManager {
-    unordered_map<string, sf::Texture> textures;
-    void LoadTextures(string name);
-
 public:
+    TextureManager();
     sf::Texture& getTexture(string name);
     void Clear();
+
+private:
+    unordered_map<string, sf::Texture> textures;
+    void LoadTextures(string name);
 };
