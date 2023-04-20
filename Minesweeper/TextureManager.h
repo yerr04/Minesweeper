@@ -5,7 +5,7 @@
 using namespace std;
 
 class TextureManager {
-    unordered map<string, sf::Texture> textures;
+    unordered_map<string, sf::Texture> textures;
     void LoadTextures(string name);
 
 public:

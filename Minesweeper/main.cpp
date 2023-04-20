@@ -2,6 +2,8 @@
 #include <cctype>
 #include <iostream>
 #include <string>
+#include "board.h"
+#include "TextureManager.h"
 
 
 int main()
@@ -127,6 +129,10 @@ int main()
                 if (event.type == sf::Event::Closed) {
                     gameWindow.close();
                 }
+
+                // create a board
+                Board board(10, 10, 10);
+                board.draw(gameWindow);
                 // Handle mouse click events
                 if (event.type == sf::Event::MouseButtonPressed) {
                     if (event.mouseButton.button == sf::Mouse::Left) {
