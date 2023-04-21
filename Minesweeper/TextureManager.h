@@ -2,15 +2,11 @@
 #include <string>
 #include <unordered_map>
 
-using namespace std;
-
 class TextureManager {
-public:
-    TextureManager();
-    sf::Texture& getTexture(string name);
-    void Clear();
-
 private:
-    unordered_map<string, sf::Texture> textures;
-    void LoadTextures(string name);
+    std::unordered_map<std::string, sf::Texture> textures;
+    void LoadTextures(std::string name);
+public:
+    sf::Texture& getTexture(std::string name);
+    void Clear();
 };

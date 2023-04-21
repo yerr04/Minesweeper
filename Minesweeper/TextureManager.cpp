@@ -1,30 +1,18 @@
 #include "TextureManager.h"
 
-TextureManager::TextureManager() {
-    LoadTextures("texture1");
-    LoadTextures("texture2");
-    // ...
+sf::Texture& TextureManager::getTexture(std::string name) {
+    if (textures.find(name) == textures.end()) {
+        LoadTextures(name);
+    }
+    return textures[name];
 }
 
-void TextureManager::LoadTextures(string name) {
+void TextureManager::LoadTextures(std::string name) {
     sf::Texture texture;
-    if (!texture.loadFromFile(name)) {
-        // Handle error loading texture
-    }
+    texture.loadFromFile("./files/images/" + name + ".png");
     textures.emplace(name, texture);
 }
 
-sf::Texture& TextureManager::getTexture(string name) {
-    auto found = textures.find(name);
-    if (found != textures.end()) {
-        return found->second;
-    }
-    // Handle missing texture
-}
-
 void TextureManager::Clear() {
-    for (auto& [name, texture] : textures) {
-        texture.~Texture();
-    }
     textures.clear();
 }
