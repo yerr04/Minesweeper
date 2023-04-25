@@ -3,36 +3,28 @@
 #include "TextureManager.h"
 #include <SFML/Graphics.hpp>
 
-using namespace std;
-
 class Tiles {
-private:
-    int x, y, adjmines;
-    bool isMine, isFlagged, isRevealed;
-    sf::Texture number;
-    sf::Texture sprite;
-    sf::Texture flagged;
-    sf::Texture mine;
-    vector<Tiles*> neighbors;
-
+	bool isShown, isFlagged, isMine;
+	int adjMines;
+	std::vector<Tiles*> neighbors;
+	sf::Sprite* sprite;
+	sf::Sprite* sprite2;
+	sf::Sprite* flagSprite;
+	sf::Texture& texture;
 public:
-    Tiles();
-    Tiles(int x, int y, bool isMine);
-    void setNeighbors(vector<Tiles*> neighbors, int x, int y);
-    void setAdjMines();
-    void setRevealed();
-    void setFlagged();
-    void setMine();
-    void setNumber();
-    void setSprite();
-    void setpos(int x, int y);
-    void draw(sf::RenderWindow& window);
-    int getX();
-    int getY();
-    int getAdjMines();
-    bool getIsMine();
-    bool getIsFlagged();
-    bool getIsRevealed();
-    vector<Tiles*> getNeighbors();
+	Tiles(sf::Texture& texture, sf::Texture& flagTexture);
+	sf::Sprite* getSprite();
+	sf::Sprite* getFlagSprite();
+	sf::Sprite* getSprite2();
+	bool getIsShown();
+	bool getIsFlagged();
+	bool getIsMine();
+	int getAdjMines();
+	void setIsShown(bool isShown);
+	void setIsFlagged(bool isFlagged);
+	void setIsMine(bool isMine);
+	void setNeighbors(std::vector<Tiles*> &adjTiles);
 
+	void setpos(int x, int y);
+	void createMine();
 };
