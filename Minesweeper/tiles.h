@@ -4,27 +4,34 @@
 #include <SFML/Graphics.hpp>
 
 class Tiles {
-	bool isShown, isFlagged, isMine;
-	int adjMines;
+	bool isShown = false;
+	bool isFlagged = false;
+	bool isMine = false;
+	int adjMines = 0;
 	std::vector<Tiles*> neighbors;
-	sf::Sprite* sprite;
-	sf::Sprite* sprite2;
-	sf::Sprite* flagSprite;
+	sf::Sprite* initSprite = new sf::Sprite;
+	sf::Sprite* nextSprite = new sf::Sprite;
+	sf::Sprite* flagSprite = new sf::Sprite;
 	sf::Texture& texture;
 public:
-	Tiles(sf::Texture& texture, sf::Texture& flagTexture);
-	sf::Sprite* getSprite();
+	Tiles(TextureManager& textureManager, std::string textureName, std::string flagTextureName);
+	// setters
+	void setShown(bool isShown);
+	void setFlag(bool isFlagged);
+	void setMine(bool isMine);
+	void setNeighbors(std::vector<Tiles*>& adjTiles);
+
+	// getters
+	sf::Sprite* getInitSprite();
 	sf::Sprite* getFlagSprite();
-	sf::Sprite* getSprite2();
+	sf::Sprite* getNextSprite();
 	bool getIsShown();
 	bool getIsFlagged();
 	bool getIsMine();
 	int getAdjMines();
-	void setIsShown(bool isShown);
-	void setIsFlagged(bool isFlagged);
-	void setIsMine(bool isMine);
-	void setNeighbors(std::vector<Tiles*> &adjTiles);
+	std:: vector<Tiles*>* getNeighbors();
 
+	// methods
 	void setpos(int x, int y);
 	void createMine();
 };

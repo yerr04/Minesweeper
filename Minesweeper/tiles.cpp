@@ -1,22 +1,47 @@
 #include <iostream>
 #include "Tiles.h"
 
-Tiles::Tiles(sf::Texture& texture, sf::Texture& flagTexture) : texture(texture) {
-	sprite->setTexture(texture);
-	sprite2->setTexture(texture);
-	flagSprite->setTexture(flagTexture);
+Tiles::Tiles(TextureManager& textureManager, std::string textureName, std::string flagTextureName) {
+	initSprite->setTexture(textureManager.getTexture(textureName));
+	nextSprite->setTexture(textureManager.getTexture(textureName));
+	flagSprite->setTexture(textureManager.getTexture(flagTextureName));
 }
 
-sf::Sprite* Tiles::getSprite() {
-	return sprite;
+// setters
+void Tiles::setShown(bool isShown) {
+	this->isShown = isShown;
+}
+
+void Tiles::setFlag(bool isFlagged) {
+	this->isFlagged = isFlagged;
+}
+
+void Tiles::setMine(bool isMine) {
+	this->isMine = isMine;
+}
+
+void Tiles::setNeighbors(std::vector<Tiles*>& adjTiles) {
+	neighbors = adjTiles;
+	adjMines = 0;
+	for (Tiles* tile : neighbors) {
+		Tiles* temp = tile;
+		if (tile->getIsMine()) {
+			adjMines++;
+		}
+	}
+}
+
+// getters
+sf::Sprite* Tiles::getInitSprite() {
+	return initSprite;
 }
 
 sf::Sprite* Tiles::getFlagSprite() {
 	return flagSprite;
 }
 
-sf::Sprite* Tiles::getSprite2() {
-	return sprite2;
+sf::Sprite* Tiles::getNextSprite() {
+	return nextSprite;
 }
 
 bool Tiles::getIsShown() {
@@ -34,35 +59,15 @@ bool Tiles::getIsMine() {
 int Tiles::getAdjMines() {
 	return adjMines;
 }
-
-void Tiles::setIsShown(bool isShown) {
-	this->isShown = isShown;
+std::vector<Tiles*>* Tiles::getNeighbors() {
+	return &neighbors;
 }
 
-void Tiles::setIsFlagged(bool isFlagged) {
-	this->isFlagged = isFlagged;
-}
-
-void Tiles::setIsMine(bool isMine) {
-	this->isMine = isMine;
-}
-
-void Tiles::setNeighbors(std::vector<Tiles*> &neighborTiles) {
-	this->neighbors = neighborTiles;
-	adjMines = 0;
-
-	for (int i = 0; i < neighbors.size(); i++) {
-		Tiles* current = neighbors.at(i);
-		if (neighbors[i]->getIsMine()) {
-			adjMines++;
-		}
-	}
-}
-
+// methods
 void Tiles::setpos(int x, int y) {
-	sprite->setPosition(x, y);
-	sprite2->setPosition(x, y);
-	flagSprite->setPosition(x, y);
+	initSprite->move(sf::Vector2f(y, x));
+	nextSprite->move(sf::Vector2f(y, x));
+	flagSprite->move(sf::Vector2f(y, x));
 }
 
 void Tiles::createMine() {
