@@ -14,8 +14,7 @@ class Tiles {
 	sf::Sprite* flagSprite = new sf::Sprite;
 	sf::Texture& texture;
 public:
-	Tiles(TextureManager& textureManager, std::string textureName, std::string flagTextureName);
-	// setters
+	Tiles(sf::Texture& texture, sf::Texture& flagTexture);
 	void setShown(bool isShown);
 	void setFlag(bool isFlagged);
 	void setMine(bool isMine);

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include "board.h"
-#include "TextureManager.h"
 
 
 int main()
@@ -124,24 +123,29 @@ int main()
     else {
         sf::RenderWindow gameWindow(sf::VideoMode(800, 600), "Minesweeper");
         while (gameWindow.isOpen()) {
+            sf::Event event;
             // Gameplay code here
             while (gameWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
+
                     gameWindow.close();
                 }
+                // create a board using the board class
+                Board board;
+                gameWindow.clear();
+                board.drawBoard(gameWindow);
+                gameWindow.display();
 
-                // create a board
-                Board board(10, 10, 10);
-                board.draw(gameWindow);
-                // Handle mouse click events
+                // right click to flag a square
                 if (event.type == sf::Event::MouseButtonPressed) {
-                    if (event.mouseButton.button == sf::Mouse::Left) {
-						// Left click
-					}
-                    else if (event.mouseButton.button == sf::Mouse::Right) {
-						// Right click
+                    if (event.mouseButton.button == sf::Mouse::Right) {
+                        board.toggleFlag(board.getTile(event.mouseButton.x, event.mouseButton.y));
+                        gameWindow.clear();
+                        board.drawBoard(gameWindow);
+                        gameWindow.display();
 					}
 				}
+           
             }
         }
     }

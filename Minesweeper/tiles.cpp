@@ -1,10 +1,10 @@
 #include <iostream>
 #include "Tiles.h"
 
-Tiles::Tiles(TextureManager& textureManager, std::string textureName, std::string flagTextureName) {
-	initSprite->setTexture(textureManager.getTexture(textureName));
-	nextSprite->setTexture(textureManager.getTexture(textureName));
-	flagSprite->setTexture(textureManager.getTexture(flagTextureName));
+Tiles::Tiles(sf::Texture& texture, sf::Texture& flagTexture) : texture(texture) {
+	initSprite->setTexture(texture);
+	nextSprite->setTexture(texture);
+	flagSprite->setTexture(flagTexture);
 }
 
 // setters
