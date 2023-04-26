@@ -21,7 +21,7 @@ Board::Board() {
         cout << "Error" << endl;
     else if (!flag.loadFromFile("./files/images/flag.png"))
         cout << "Error" << endl;
-    else if (!bomb.loadFromFile("./files/images/mine.png"))
+    else if (!mine.loadFromFile("./files/images/mine.png"))
         cout << "Error" << endl;
     else if (!number1.loadFromFile("./files/images/number_1.png"))
         cout << "Error" << endl;
@@ -39,16 +39,18 @@ Board::Board() {
         cout << "Error" << endl;
     else if (!number8.loadFromFile("./files/images/number_8.png"))
         cout << "Error" << endl;
-    //else if (!test1.loadFromFile("./files/images/test_1.png"))
-    //    cout << "Error" << endl;
-    //else if (!test2.loadFromFile("./files/images/test_2.png"))
-    //    cout << "Error" << endl;
-    //else if (!test3.loadFromFile("./files/images/Test_3.png"))
-    //    cout << "Error" << endl;
     else if (!hiddenTile.loadFromFile("./files/images/tile_hidden.png"))
         cout << "Error" << endl;
     else if (!shownTile.loadFromFile("./files/images/tile_revealed.png"))
         cout << "Error" << endl;
+    else if (!pause.loadFromFile("./files/images/pause.png"))
+        cout << "Error" << endl;
+    else if (!play.loadFromFile("./files/images/play.png"))
+        cout << "Error" << endl;
+	else if (!leaderboard.loadFromFile("./files/images/leaderboard.png"))
+		cout << "Error" << endl;
+	else
+		cout << "All images loaded successfully" << endl;
 
 
 
@@ -57,12 +59,10 @@ Board::Board() {
     faceSprite.move(sf::Vector2f(6 * 64, 32 * 16));
     debugSprite.setTexture(debug);
     debugSprite.move(sf::Vector2f(8 * 64, 32 * 16));
-    test1_sprite.setTexture(test1);
-    test1_sprite.move(sf::Vector2f(9 * 64, 32 * 16));
-    test2_sprite.setTexture(test2);
-    test2_sprite.move(sf::Vector2f(10 * 64, 32 * 16));
-    test3_sprite.setTexture(test3);
-    test3_sprite.move(sf::Vector2f(11 * 64, 32 * 16));
+    pauseSprite.setTexture(pause);
+    pauseSprite.move(sf::Vector2f(9 * 64, 32 * 16));
+    leaderboardSprite.setTexture(leaderboard);
+    leaderboardSprite.move(sf::Vector2f(10 * 64, 32 * 16));
     scoreSprite1.move(sf::Vector2f(0, 32 * 16));
     scoreSprite1.setTexture(digits);
     scoreSprite2.move(sf::Vector2f(21, 32 * 16));
@@ -126,7 +126,7 @@ void Board::setNeighbors() {
             Tiles* temp = tiles[i][j];
             temp->setNeighbors(neighbors);
             if (temp->getIsMine()) {
-                setSprite(temp->getNextSprite(), bomb);
+                setSprite(temp->getNextSprite(), mine);
             }
             else {
                 int neighborCount = temp->getAdjMines();
@@ -226,14 +226,16 @@ void Board::drawBoard(sf::RenderWindow& window) {
                     }
                 }
             }
+            if (tile->getIsFlagged() && !tile->getIsShown()) {
+				window.draw(*tile->getFlagSprite());
+			}
         }
     }
     updateScore();
     window.draw(faceSprite);
     window.draw(debugSprite);
-    window.draw(test1_sprite);;
-    window.draw(test2_sprite);
-    window.draw(test3_sprite);
+    window.draw(pauseSprite);
+    window.draw(leaderboardSprite);
     window.draw(scoreSprite1);
     window.draw(scoreSprite2);
     window.draw(scoreSprite3);
@@ -250,7 +252,7 @@ void Board::updateScore() {
         }
     }
 
-    int tempScore = bombs - flagged;
+    int tempScore = mines - flagged;
     score = to_string(tempScore) + "";
     char hundreds = score[0];
     if (hundreds == '-') {
@@ -274,16 +276,16 @@ void Board::addScore(int toAdd) {
     score = "" + to_string(tempScore);
 }
 
-void Board::generateBombs() {
+void Board::generateMines() {
     srand(time(nullptr));
-    while (bombs < 50) {
+    while (mines < 50) {
         int i = rand() % 16; // Might change
         int j = rand() % 25; // Might change
         Tiles* tile = tiles[i][j];
         if (!tile->getIsMine()) {
             tile->createMine();
-            setSprite(tile->getNextSprite(), bomb);
-            bombs++;
+            setSprite(tile->getNextSprite(), mine);
+            mines++;
             remainingTiles--;
         }
     }
@@ -303,8 +305,8 @@ void Board::setup() {
             tiles[i][j]->setpos(i * 32, j * 32);
         }
     }
-    bombs = 0;
-    generateBombs();
+    mines = 0;
+    generateMines();
     setNeighbors();
 }
 
@@ -313,7 +315,7 @@ void Board::loadFromFile(string fileName) {
     fstream File(fileName, fstream::in);
     int i = 0;
     int j = 0;
-    bombs = 0; // Might change
+    mines = 0; // Might change
     remainingTiles = 400; // Might change
 
     while (File >> x) {
@@ -328,8 +330,8 @@ void Board::loadFromFile(string fileName) {
             tile->setMine(true);
             remainingTiles--;
             tile->setShown(false);
-            bombs++;
-            setSprite(tile->getNextSprite(), bomb);
+            mines++;
+            setSprite(tile->getNextSprite(), mine);
         }
         j++;
         if (j > 24) {
@@ -346,21 +348,31 @@ void Board::onClick(int x, int y, string clickType) {
             setup();
         }
         else if (x >= (64 * 8) && x < (64 * 9) && !isLost && !isWon) {
-            if (isDebug)
+            if (isDebug) {
                 isDebug = false;
+                cout << "shit" << endl;
+            }
             else {
                 isDebug = true;
             }
         }
         else if (x >= (64 * 9) && x < (64 * 10) && !isLost && !isWon) {
-            loadFromFile("../boards/testboard1.brd");
-        }
-        else if (x >= (64 * 10) && x < (64 * 11) && !isLost && !isWon) {
-            loadFromFile("../boards/testboard2.brd");
-        }
-        else if (x >= (64 * 11) && x < (64 * 12) && !isLost && !isWon) {
-            loadFromFile("../boards/testboard3.brd");
-        }
+            if (isPaused) {
+                isPaused = false;
+                setSprite(&pauseSprite, pause);
+            }
+            else {
+				isPaused = true;
+                setSprite(&pauseSprite, play);
+			}
+		}
+        else if (x >= (64 * 12) && x < (64 * 13) && !isLost && !isWon) {
+			if (isLeaderboard)
+				isLeaderboard = false;
+            else {
+				isLeaderboard = true;
+			}
+		}
     }
     else if (!isLost && !isWon) {
         int row = y / 32;

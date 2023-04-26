@@ -122,31 +122,28 @@ int main()
     }
     else {
         sf::RenderWindow gameWindow(sf::VideoMode(800, 600), "Minesweeper");
+        Board board;
         while (gameWindow.isOpen()) {
             sf::Event event;
+            
             // Gameplay code here
             while (gameWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
 
                     gameWindow.close();
                 }
-                // create a board using the board class
-                Board board;
-                gameWindow.clear();
-                board.drawBoard(gameWindow);
-                gameWindow.display();
-
-                // right click to flag a square
-                if (event.type == sf::Event::MouseButtonPressed) {
-                    if (event.mouseButton.button == sf::Mouse::Right) {
-                        board.toggleFlag(board.getTile(event.mouseButton.x, event.mouseButton.y));
-                        gameWindow.clear();
-                        board.drawBoard(gameWindow);
-                        gameWindow.display();
+                else if (event.type == sf::Event::MouseButtonReleased) {
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        board.onClick(event.mouseButton.x, event.mouseButton.y, "left");
+                    }
+                    else if (event.mouseButton.button == sf::Mouse::Right) {
+						board.onClick(event.mouseButton.x, event.mouseButton.y, "right");
 					}
 				}
-           
-            }
+			}
+            gameWindow.clear(sf::Color:: White);
+            board.drawBoard(gameWindow);
+            gameWindow.display();
         }
     }
 }

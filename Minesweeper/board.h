@@ -6,17 +6,19 @@
 class Board {
 
     Tiles* tiles[16][25];
-    int bombs = 0;
+    int mines = 0;
     bool isDebug = false;
+    bool isPaused = false;
+    bool isLeaderboard = false;
     bool isLost = false;
     bool isWon = false;
     int remainingTiles = 400;
     TextureManager textureManager;
 
-    sf::Texture digits, debug, happyFace, lostFace, winFace, flag, bomb, number1, number2, number3, number4, number5,
-        number6, number7, number8, test1, test2, test3, hiddenTile, shownTile;
+    sf::Texture digits, debug, happyFace, lostFace, winFace, flag, mine, number1, number2, number3, number4, number5,
+        number6, number7, number8, hiddenTile, shownTile, pause, play, leaderboard;
 
-    sf::Sprite faceSprite, debugSprite, test1_sprite, test2_sprite, test3_sprite, scoreSprite1, scoreSprite2, scoreSprite3;
+    sf::Sprite faceSprite, debugSprite, scoreSprite1, scoreSprite2, scoreSprite3, pauseSprite, playSprite, leaderboardSprite;
 
     std::string score = "000";
 
@@ -42,7 +44,7 @@ public:
 
     void addScore(int toAdd);
 
-    void generateBombs();
+    void generateMines();
 
     void setup();
 
