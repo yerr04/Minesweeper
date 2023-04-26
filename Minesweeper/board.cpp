@@ -310,37 +310,37 @@ void Board::setup() {
     setNeighbors();
 }
 
-void Board::loadFromFile(string fileName) {
-    char x;
-    fstream File(fileName, fstream::in);
-    int i = 0;
-    int j = 0;
-    mines = 0; // Might change
-    remainingTiles = 400; // Might change
-
-    while (File >> x) {
-        Tiles* tile = tiles[i][j];
-        setSprite(tile->getInitSprite(), hiddenTile);
-        if (x == '0') {
-            tile->setMine(false);
-            tile->setShown(false);
-            setSprite(tile->getNextSprite(), shownTile);
-        }
-        else if (x == '1') {
-            tile->setMine(true);
-            remainingTiles--;
-            tile->setShown(false);
-            mines++;
-            setSprite(tile->getNextSprite(), mine);
-        }
-        j++;
-        if (j > 24) {
-            j = 0;
-            i++;
-        }
-    }
-    setNeighbors();
-}
+//void Board::loadFromFile(string fileName) {
+//    char x;
+//    fstream File(fileName, fstream::in);
+//    int i = 0;
+//    int j = 0;
+//    mines = 0; // Might change
+//    remainingTiles = 400; // Might change
+//
+//    while (File >> x) {
+//        Tiles* tile = tiles[i][j];
+//        setSprite(tile->getInitSprite(), hiddenTile);
+//        if (x == '0') {
+//            tile->setMine(false);
+//            tile->setShown(false);
+//            setSprite(tile->getNextSprite(), shownTile);
+//        }
+//        else if (x == '1') {
+//            tile->setMine(true);
+//            remainingTiles--;
+//            tile->setShown(false);
+//            mines++;
+//            setSprite(tile->getNextSprite(), mine);
+//        }
+//        j++;
+//        if (j > 24) {
+//            j = 0;
+//            i++;
+//        }
+//    }
+//    setNeighbors();
+//}
 
 void Board::onClick(int x, int y, string clickType) {
     if (y > 512 && y < 578) {
@@ -363,6 +363,8 @@ void Board::onClick(int x, int y, string clickType) {
             else {
 				isPaused = true;
                 setSprite(&pauseSprite, play);
+                // set all tile sprites to revealed
+                
 			}
 		}
         else if (x >= (64 * 12) && x < (64 * 13) && !isLost && !isWon) {
