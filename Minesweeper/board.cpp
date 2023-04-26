@@ -350,7 +350,6 @@ void Board::onClick(int x, int y, string clickType) {
         else if (x >= (64 * 8) && x < (64 * 9) && !isLost && !isWon) {
             if (isDebug) {
                 isDebug = false;
-                cout << "shit" << endl;
             }
             else {
                 isDebug = true;
