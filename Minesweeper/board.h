@@ -4,9 +4,9 @@
 #include <SFML/Graphics.hpp>
 
 class Board {
-
-    Tiles* tiles[16][25];
+    std::vector<std::vector<Tiles*>> tiles;
     int mines = 0;
+    int minesMax;
     bool isDebug = false;
     bool isPaused = false;
     bool isLeaderboard = false;
@@ -23,6 +23,8 @@ class Board {
     std::string score = "000";
 
 public:
+    int numRows = 16;
+    int numCols = 25;
     // Constructor
     Board();
 

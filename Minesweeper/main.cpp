@@ -121,8 +121,11 @@ int main()
         return EXIT_FAILURE;
     }
     else {
-        sf::RenderWindow gameWindow(sf::VideoMode(800, 600), "Minesweeper");
         Board board;
+        int width = board.numCols * 32;
+        int height = (board.numRows * 32) + 100;
+        sf::RenderWindow gameWindow(sf::VideoMode(width, height), "Minesweeper");
+  
         while (gameWindow.isOpen()) {
             sf::Event event;
             

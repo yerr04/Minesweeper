@@ -54,28 +54,29 @@ Board::Board() {
 
 
 
-
+    int width = numCols * 32;
+    int height = (numRows * 32) + 100;
     faceSprite.setTexture(happyFace);
-    faceSprite.move(sf::Vector2f(6 * 64, 32 * 16));
+    faceSprite.move(sf::Vector2f(6 * 64, 32 * numRows));
     debugSprite.setTexture(debug);
-    debugSprite.move(sf::Vector2f(8 * 64, 32 * 16));
+    debugSprite.move(sf::Vector2f(8 * 64, 32 * numRows));
     pauseSprite.setTexture(pause);
-    pauseSprite.move(sf::Vector2f(9 * 64, 32 * 16));
+    pauseSprite.move(sf::Vector2f(9 * 64, 32 * numRows));
     leaderboardSprite.setTexture(leaderboard);
-    leaderboardSprite.move(sf::Vector2f(10 * 64, 32 * 16));
-    scoreSprite1.move(sf::Vector2f(0, 32 * 16));
+    leaderboardSprite.move(sf::Vector2f(10 * 64, 32 * numRows));
+    scoreSprite1.move(sf::Vector2f(0, 32 * numRows));
     scoreSprite1.setTexture(digits);
-    scoreSprite2.move(sf::Vector2f(21, 32 * 16));
+    scoreSprite2.move(sf::Vector2f(21, 32 * numRows));
     scoreSprite2.setTexture(digits);
-    scoreSprite3.move(sf::Vector2f(42, 32 * 16));
+    scoreSprite3.move(sf::Vector2f(42, 32 * numRows));
     scoreSprite3.setTexture(digits);
     setup();
 }
 
 // Destructor
 Board::~Board() {
-    for (int i = 0; i < 16; i++) { // Might Change
-        for (int j = 0; j < 25; j++) { // Might change
+    for (int i = 0; i < numRows; i++) { // Might Change
+        for (int j = 0; j < numCols; j++) { // Might change
             delete tiles[i][j];
         }
     }
@@ -88,11 +89,11 @@ Tiles* Board::getTile(int row, int column) {
 
 // Mutators
 void Board::setNeighbors() {
-    for (int i = 0; i < 16; i++) {
-        for (int j = 0; j < 25; j++) {
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
             vector<Tiles*> neighbors;
             if (i - 1 >= 0) {
-                if (j + 1 < 25) {
+                if (j + 1 < numCols) {
                     Tiles* tile = tiles[i - 1][j + 1];
                     neighbors.push_back(tile);
                 }
@@ -103,8 +104,8 @@ void Board::setNeighbors() {
                 Tiles* tile = tiles[i - 1][j];
                 neighbors.push_back(tile);
             }
-            if (i + 1 < 16) {
-                if (j + 1 < 25) {
+            if (i + 1 < numRows) {
+                if (j + 1 < numCols) {
                     Tiles* tile = tiles[i + 1][j + 1];
                     neighbors.push_back(tile);
                 }
@@ -115,7 +116,7 @@ void Board::setNeighbors() {
                 Tiles* tile = tiles[i + 1][j];
                 neighbors.push_back(tile);
             }
-            if (j + 1 < 25) {
+            if (j + 1 < numCols) {
                 Tiles* tile = tiles[i][j + 1];
                 neighbors.push_back(tile);
             }
@@ -169,8 +170,8 @@ void Board::setSprite(sf::Sprite* sprite, sf::Texture& text) {
 // Functions
 
 void Board::drawBoard(sf::RenderWindow& window) {
-    for (int i = 0; i < 16; i++) { // Might Change
-        for (int j = 0; j < 25; j++) { // Might Change
+    for (int i = 0; i < numRows; i++) { // Might Change
+        for (int j = 0; j < numCols; j++) { // Might Change
             Tiles* tile = tiles[i][j];
             sf::Sprite* sprite = tile->getInitSprite();
             sf::Sprite* sprite2 = tile->getNextSprite();
@@ -229,6 +230,18 @@ void Board::drawBoard(sf::RenderWindow& window) {
             if (tile->getIsFlagged() && !tile->getIsShown()) {
 				window.draw(*tile->getFlagSprite());
 			}
+            if (isPaused) {
+                setSprite(sprite, shownTile);
+                window.draw(*sprite);
+            }
+            if (!isPaused) {
+                if (!tile->getIsShown()) {
+					setSprite(sprite, hiddenTile);
+				}
+            }
+            if (tile->getIsFlagged() && !tile->getIsShown()) {
+                window.draw(*tile->getFlagSprite());
+            }
         }
     }
     updateScore();
@@ -243,8 +256,8 @@ void Board::drawBoard(sf::RenderWindow& window) {
 
 void Board::updateScore() {
     int flagged = 0;
-    for (int i = 0; i < 16; i++) { // Might change
-        for (int j = 0; j < 25; j++) {
+    for (int i = 0; i < numRows; i++) { // Might change
+        for (int j = 0; j < numCols; j++) {
             Tiles* temp = tiles[i][j];
             if (temp->getIsFlagged()) {
                 flagged++;
@@ -278,9 +291,9 @@ void Board::addScore(int toAdd) {
 
 void Board::generateMines() {
     srand(time(nullptr));
-    while (mines < 50) {
-        int i = rand() % 16; // Might change
-        int j = rand() % 25; // Might change
+    while (mines < minesMax) {
+        int i = rand() % numRows; // Might change
+        int j = rand() % numCols; // Might change
         Tiles* tile = tiles[i][j];
         if (!tile->getIsMine()) {
             tile->createMine();
@@ -294,53 +307,42 @@ void Board::generateMines() {
 void Board::setup() {
     isLost = false;
     isWon = false;
-    remainingTiles = 400; // Might change
+    remainingTiles = numRows * numCols; // Might change
     setSprite(&faceSprite, happyFace);
-    for (int i = 0; i < 16; i++) { // Might change
-        for (int j = 0; j < 25; j++) { // Might change
-            if (!tiles[i][j]) {
-                delete tiles[i][j];
-            }
-            tiles[i][j] = new Tiles(hiddenTile, flag);
-            tiles[i][j]->setpos(i * 32, j * 32);
-        }
-    }
+    loadFromFile("./files/board_config.cfg");
     mines = 0;
     generateMines();
     setNeighbors();
 }
 
-//void Board::loadFromFile(string fileName) {
-//    char x;
-//    fstream File(fileName, fstream::in);
-//    int i = 0;
-//    int j = 0;
-//    mines = 0; // Might change
-//    remainingTiles = 400; // Might change
-//
-//    while (File >> x) {
-//        Tiles* tile = tiles[i][j];
-//        setSprite(tile->getInitSprite(), hiddenTile);
-//        if (x == '0') {
-//            tile->setMine(false);
-//            tile->setShown(false);
-//            setSprite(tile->getNextSprite(), shownTile);
-//        }
-//        else if (x == '1') {
-//            tile->setMine(true);
-//            remainingTiles--;
-//            tile->setShown(false);
-//            mines++;
-//            setSprite(tile->getNextSprite(), mine);
-//        }
-//        j++;
-//        if (j > 24) {
-//            j = 0;
-//            i++;
-//        }
-//    }
-//    setNeighbors();
-//}
+void Board::loadFromFile(string fileName) {
+    // read numCols and numRows from .cfg file
+    ifstream file(fileName);
+    string line;
+    getline(file, line);
+    numCols = stoi(line);
+    getline(file, line);
+    numRows = stoi(line);
+    getline(file, line);
+    minesMax = stoi(line);
+
+    // add tiles to board
+    tiles.resize(numRows);
+    for (int i = 0; i < numRows; i++) {
+		tiles[i].resize(numCols);
+	}
+    for (int i = 0; i < numRows; i++) { // Might change
+    		for (int j = 0; j < numCols; j++) { // Might change
+                if (!tiles[i][j]) {
+				delete tiles[i][j];
+			}
+            			tiles[i][j] = new Tiles(hiddenTile, flag);
+            			tiles[i][j]->setpos(i * 32, j * 32);
+            		}
+    	}
+    generateMines();
+    setNeighbors();
+}
 
 void Board::onClick(int x, int y, string clickType) {
     if (y > 512 && y < 578) {
@@ -433,8 +435,8 @@ void Board::winGame() {
     isWon = true;
     isDebug = false;
     setSprite(&faceSprite, winFace);
-    for (int i = 0; i < 16; i++) { // Might change
-        for (int j = 0; j < 25; j++) { // Might change
+    for (int i = 0; i < numRows; i++) { // Might change
+        for (int j = 0; j < numCols; j++) { // Might change
             Tiles* tile = tiles[i][j];
 
             if (tile->getIsShown()) {
