@@ -12,8 +12,7 @@ class Board {
     bool isLeaderboard = false;
     bool isLost = false;
     bool isWon = false;
-    int remainingTiles = 400;
-    TextureManager textureManager;
+    int remainingTiles = numRows * numCols;
 
     sf::Texture digits, debug, happyFace, lostFace, winFace, flag, mine, number1, number2, number3, number4, number5,
         number6, number7, number8, hiddenTile, shownTile, pause, play, leaderboard;

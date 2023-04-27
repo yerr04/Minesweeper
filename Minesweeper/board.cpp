@@ -52,23 +52,21 @@ Board::Board() {
 	else
 		cout << "All images loaded successfully" << endl;
 
-
-
-    int width = numCols * 32;
-    int height = (numRows * 32) + 100;
+    loadFromFile("./files/board_config.cfg");
+    cout << numRows << " " << numCols << endl;
     faceSprite.setTexture(happyFace);
-    faceSprite.move(sf::Vector2f(6 * 64, 32 * numRows));
+    faceSprite.move(sf::Vector2f(((numCols / 2.0) * 32) - 32, 32 * (numRows + 0.5f)));
     debugSprite.setTexture(debug);
-    debugSprite.move(sf::Vector2f(8 * 64, 32 * numRows));
+    debugSprite.move(sf::Vector2f((numCols * 32) - 304, 32 * (numRows + 0.5f)));
     pauseSprite.setTexture(pause);
-    pauseSprite.move(sf::Vector2f(9 * 64, 32 * numRows));
+    pauseSprite.move(sf::Vector2f((numCols * 32) - 240, 32 * (numRows + 0.5f)));
     leaderboardSprite.setTexture(leaderboard);
-    leaderboardSprite.move(sf::Vector2f(10 * 64, 32 * numRows));
-    scoreSprite1.move(sf::Vector2f(0, 32 * numRows));
+    leaderboardSprite.move(sf::Vector2f((numCols * 32) - 176, 32 * (numRows + 0.5f)));
+    scoreSprite1.move(sf::Vector2f(12, (32 * (numRows + 0.5f) + 16)));
     scoreSprite1.setTexture(digits);
-    scoreSprite2.move(sf::Vector2f(21, 32 * numRows));
+    scoreSprite2.move(sf::Vector2f(33, (32 * (numRows + 0.5f) + 16)));
     scoreSprite2.setTexture(digits);
-    scoreSprite3.move(sf::Vector2f(42, 32 * numRows));
+    scoreSprite3.move(sf::Vector2f(54, (32 * (numRows + 0.5f) + 16)));
     scoreSprite3.setTexture(digits);
     setup();
 }
@@ -345,11 +343,11 @@ void Board::loadFromFile(string fileName) {
 }
 
 void Board::onClick(int x, int y, string clickType) {
-    if (y > 512 && y < 578) {
-        if (x >= (64 * 6) && x <= (64 * 7)) {
+    if (y > (32 * (numRows + 0.5f)) && y < (32 * (numRows + 0.5f) + 66)) {
+        if (x >= (((numCols / 2.0) * 32) - 32) && x <= (((numCols / 2.0) * 32) + 34)) {
             setup();
         }
-        else if (x >= (64 * 8) && x < (64 * 9) && !isLost && !isWon) {
+        else if (x >= ((numCols * 32) - 304) && x < ((numCols * 32) - 238) && !isLost && !isWon) {
             if (isDebug) {
                 isDebug = false;
             }
@@ -357,7 +355,7 @@ void Board::onClick(int x, int y, string clickType) {
                 isDebug = true;
             }
         }
-        else if (x >= (64 * 9) && x < (64 * 10) && !isLost && !isWon) {
+        else if (x >= ((numCols * 32) - 240) && x < ((numCols * 32) - 174) && !isLost && !isWon) {
             if (isPaused) {
                 isPaused = false;
                 setSprite(&pauseSprite, pause);
@@ -365,7 +363,6 @@ void Board::onClick(int x, int y, string clickType) {
             else {
 				isPaused = true;
                 setSprite(&pauseSprite, play);
-                // set all tile sprites to revealed
                 
 			}
 		}
@@ -381,12 +378,12 @@ void Board::onClick(int x, int y, string clickType) {
         int row = y / 32;
         int column = x / 32;
         Tiles* temp = tiles[row][column];
-        if (clickType == "left") {
+        if (clickType == "left" && !isPaused) {
             if (!temp->getIsFlagged() && !temp->getIsShown()) {
                 onReveal(temp);
             }
         }
-        else if (clickType == "right") {
+        else if (clickType == "right" && !isPaused) {
             toggleFlag(temp);
         }
     }
@@ -435,8 +432,8 @@ void Board::winGame() {
     isWon = true;
     isDebug = false;
     setSprite(&faceSprite, winFace);
-    for (int i = 0; i < numRows; i++) { // Might change
-        for (int j = 0; j < numCols; j++) { // Might change
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
             Tiles* tile = tiles[i][j];
 
             if (tile->getIsShown()) {
