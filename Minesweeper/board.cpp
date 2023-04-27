@@ -1,8 +1,8 @@
 #include "Board.h"
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
 #include <ctime>
+#include "leaderboard.h"
 #include <SFML/Graphics.hpp>
 using namespace std;
 
@@ -366,12 +366,12 @@ void Board::onClick(int x, int y, string clickType) {
                 
 			}
 		}
-        else if (x >= (64 * 12) && x < (64 * 13) && !isLost && !isWon) {
-			if (isLeaderboard)
-				isLeaderboard = false;
-            else {
-				isLeaderboard = true;
-			}
+        else if (x >= ((numCols * 32) - 176) && x < ((numCols * 32) - 110) && !isLost && !isWon) {
+            if (!isLeaderboard) {
+                Leaderboard((16 * numCols), (numRows * 16) + 50);
+                isLeaderboard = false;
+            
+            }
 		}
     }
     else if (!isLost && !isWon) {
