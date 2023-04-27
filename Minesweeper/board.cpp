@@ -8,7 +8,41 @@ using namespace std;
 
 // Constructor
 Board::Board() {
+    getTextures();
+    loadFromFile("./files/board_config.cfg");
+    cout << numRows << " " << numCols << endl;
+    faceSprite.setTexture(happyFace);
+    faceSprite.move(sf::Vector2f(((numCols / 2.0) * 32) - 32, 32 * (numRows + 0.5f)));
+    debugSprite.setTexture(debug);
+    debugSprite.move(sf::Vector2f((numCols * 32) - 304, 32 * (numRows + 0.5f)));
+    pauseSprite.setTexture(pause);
+    pauseSprite.move(sf::Vector2f((numCols * 32) - 240, 32 * (numRows + 0.5f)));
+    leaderboardSprite.setTexture(leaderboard);
+    leaderboardSprite.move(sf::Vector2f((numCols * 32) - 176, 32 * (numRows + 0.5f)));
+    scoreSprite1.move(sf::Vector2f(12, (32 * (numRows + 0.5f) + 16)));
+    scoreSprite1.setTexture(digits);
+    scoreSprite2.move(sf::Vector2f(33, (32 * (numRows + 0.5f) + 16)));
+    scoreSprite2.setTexture(digits);
+    scoreSprite3.move(sf::Vector2f(54, (32 * (numRows + 0.5f) + 16)));
+    scoreSprite3.setTexture(digits);
+    setup();
+}
 
+// Destructor
+Board::~Board() {
+    for (int i = 0; i < numRows; i++) {  
+        for (int j = 0; j < numCols; j++) {  
+            delete tiles[i][j];
+        }
+    }
+}
+
+// getters
+Tiles* Board::getTile(int row, int column) {
+    return tiles[row][column];
+}
+
+void Board::getTextures() {
     if (!digits.loadFromFile("./files/images/digits.png"))
         cout << "Error" << endl;
     else if (!debug.loadFromFile("./files/images/debug.png"))
@@ -47,45 +81,324 @@ Board::Board() {
         cout << "Error" << endl;
     else if (!play.loadFromFile("./files/images/play.png"))
         cout << "Error" << endl;
-	else if (!leaderboard.loadFromFile("./files/images/leaderboard.png"))
-		cout << "Error" << endl;
-	else
-		cout << "All images loaded successfully" << endl;
-
-    loadFromFile("./files/board_config.cfg");
-    cout << numRows << " " << numCols << endl;
-    faceSprite.setTexture(happyFace);
-    faceSprite.move(sf::Vector2f(((numCols / 2.0) * 32) - 32, 32 * (numRows + 0.5f)));
-    debugSprite.setTexture(debug);
-    debugSprite.move(sf::Vector2f((numCols * 32) - 304, 32 * (numRows + 0.5f)));
-    pauseSprite.setTexture(pause);
-    pauseSprite.move(sf::Vector2f((numCols * 32) - 240, 32 * (numRows + 0.5f)));
-    leaderboardSprite.setTexture(leaderboard);
-    leaderboardSprite.move(sf::Vector2f((numCols * 32) - 176, 32 * (numRows + 0.5f)));
-    scoreSprite1.move(sf::Vector2f(12, (32 * (numRows + 0.5f) + 16)));
-    scoreSprite1.setTexture(digits);
-    scoreSprite2.move(sf::Vector2f(33, (32 * (numRows + 0.5f) + 16)));
-    scoreSprite2.setTexture(digits);
-    scoreSprite3.move(sf::Vector2f(54, (32 * (numRows + 0.5f) + 16)));
-    scoreSprite3.setTexture(digits);
-    setup();
+    else if (!leaderboard.loadFromFile("./files/images/leaderboard.png"))
+        cout << "Error" << endl;
+    else
+        cout << "All images loaded successfully" << endl;
 }
 
-// Destructor
-Board::~Board() {
-    for (int i = 0; i < numRows; i++) { // Might Change
-        for (int j = 0; j < numCols; j++) { // Might change
-            delete tiles[i][j];
+// this is where the real stuff is done son
+void Board::Flag(Tiles* tile) {
+    if (tile->getIsFlagged()) {
+        tile->setFlag(false);
+    }
+    else {
+        tile->setFlag(true);
+    }
+}
+
+void Board::setSprite(sf::Sprite* sprite, sf::Texture& text) {
+    sprite->setTexture(text);
+}
+
+void Board::drawBoard(sf::RenderWindow& window) {
+    bool debugOrPaused = isDebug || isPaused;
+
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
+            Tiles* tile = tiles[i][j];
+            sf::Sprite* sprite = tile->getInitSprite();
+            sf::Sprite* sprite2 = tile->getNextSprite();
+
+            bool isShown = tile->getIsShown();
+            bool isFlagged = tile->getIsFlagged();
+            bool isMine = tile->getIsMine();
+
+            if (isLost) {
+                if (isShown) {
+                    window.draw(*sprite);
+                    window.draw(*sprite2);
+                }
+                else {
+                    if (isMine) {
+                        setSprite(sprite, shownTile);
+                        window.draw(*sprite);
+                        window.draw(*sprite2);
+                    }
+                    else {
+                        window.draw(*sprite);
+                    }
+                }
+            }
+            else if (isWon) {
+                if (isShown) {
+                    window.draw(*sprite);
+                    window.draw(*sprite2);
+                }
+                else {
+                    if (isMine) {
+                        window.draw(*sprite);
+                        window.draw(*tile->getFlagSprite());
+                    }
+                }
+            }
+            else {
+                if (debugOrPaused) {
+                    window.draw(*sprite);
+                    if (isMine || isShown) {
+                        window.draw(*sprite2);
+                    }
+                    if (isFlagged && !isShown) {
+                        window.draw(*tile->getFlagSprite());
+                    }
+                }
+                else {
+                    if (isShown) {
+                        window.draw(*sprite);
+                        window.draw(*sprite2);
+                    }
+                    else {
+                        window.draw(*sprite);
+                        if (isFlagged) {
+                            window.draw(*tile->getFlagSprite());
+                        }
+                    }
+                }
+            }
+
+            if (isFlagged && !isShown) {
+                window.draw(*tile->getFlagSprite());
+            }
+
+            if (isPaused) {
+                setSprite(sprite, shownTile);
+                window.draw(*sprite);
+            }
+            else if (!isShown) {
+                setSprite(sprite, hiddenTile);
+            }
+        }
+    }
+
+    updateScore();
+
+    window.draw(faceSprite);
+    window.draw(debugSprite);
+    window.draw(pauseSprite);
+    window.draw(leaderboardSprite);
+    window.draw(scoreSprite1);
+    window.draw(scoreSprite2);
+    window.draw(scoreSprite3);
+}
+
+void Board::updateScore() {
+    int flagged = 0;
+    for (int i = 0; i < numRows; i++) {  
+        for (int j = 0; j < numCols; j++) {
+            Tiles* temp = tiles[i][j];
+            if (temp->getIsFlagged()) {
+                flagged++;
+            }
+        }
+    }
+
+    int tempScore = mines - flagged;
+    score = to_string(tempScore) + "";
+    char hundreds = score[0];
+    if (hundreds == '-') {
+        scoreSprite1.setTextureRect(sf::IntRect(21 * 10, 0, 21, 32));
+    }
+    else {
+        int first = hundreds - 48;
+        scoreSprite1.setTextureRect(sf::IntRect(21 * first, 0, 21, 32));
+    }
+    char tens = score[1];
+    int second = tens - 48;
+    scoreSprite2.setTextureRect(sf::IntRect(21 * second, 0, 21, 32));
+    char ones = score[2];
+    int third = ones - 48;
+    scoreSprite3.setTextureRect(sf::IntRect(21 * third, 0, 21, 32));
+}
+
+void Board::addScore(int toAdd) {
+    int tempScore = stoi(score);
+    tempScore += toAdd;
+    score = "" + to_string(tempScore);
+}
+
+void Board::generateMines() {
+    srand(time(nullptr));
+    while (mines < minesMax) {
+        int i = rand() % numRows;  
+        int j = rand() % numCols;  
+        Tiles* tile = tiles[i][j];
+        if (!tile->getIsMine()) {
+            tile->createMine();
+            setSprite(tile->getNextSprite(), mine);
+            mines++;
+            tilesLeft--;
         }
     }
 }
 
-// Accessors
-Tiles* Board::getTile(int row, int column) {
-    return tiles[row][column];
+void Board::setup() {
+    isLost = false;
+    isWon = false;
+    tilesLeft = numRows * numCols;  
+    setSprite(&faceSprite, happyFace);
+    loadFromFile("./files/board_config.cfg");
+    mines = 0;
+    generateMines();
+    setNeighbors();
 }
 
-// Mutators
+void Board::loadFromFile(string fileName) {
+    // read numCols and numRows from .cfg file
+    ifstream file(fileName);
+    string line;
+    getline(file, line);
+    numCols = stoi(line);
+    getline(file, line);
+    numRows = stoi(line);
+    getline(file, line);
+    minesMax = stoi(line);
+
+    // add tiles to board
+    tiles.resize(numRows);
+    for (int i = 0; i < numRows; i++) {
+		tiles[i].resize(numCols);
+	}
+    for (int i = 0; i < numRows; i++) {  
+    		for (int j = 0; j < numCols; j++) {  
+                if (!tiles[i][j]) {
+				delete tiles[i][j];
+			}
+            			tiles[i][j] = new Tiles(hiddenTile, flag);
+            			tiles[i][j]->setpos(i * 32, j * 32);
+            		}
+    	}
+    generateMines();
+    setNeighbors();
+}
+
+void Board::onClick(int x, int y, string clickType) {
+    if (y > (32 * (numRows + 0.5f)) && y < (32 * (numRows + 0.5f) + 66)) {
+        if (x >= (((numCols / 2.0) * 32) - 32) && x <= (((numCols / 2.0) * 32) + 34)) {
+            setup();
+        }
+        else if (x >= ((numCols * 32) - 304) && x < ((numCols * 32) - 238) && !isLost && !isWon) {
+            if (isDebug) {
+                isDebug = false;
+            }
+            else {
+                isDebug = true;
+            }
+        }
+        else if (x >= ((numCols * 32) - 240) && x < ((numCols * 32) - 174) && !isLost && !isWon) {
+            if (isPaused) {
+                isPaused = false;
+                setSprite(&pauseSprite, pause);
+            }
+            else {
+                isPaused = true;
+                setSprite(&pauseSprite, play);
+
+            }
+        }
+        else if (x >= ((numCols * 32) - 176) && x < ((numCols * 32) - 110) && !isLost && !isWon) {
+            if (!isLeaderboard) {
+                Leaderboard((16 * numCols), (numRows * 16) + 50);
+                isLeaderboard = false;
+            }
+        }
+    }
+    else if (!isLost && !isWon && x >= 0 && x < numCols * 32 && y >= 0 && y < numRows * 32) {
+        int row = y / 32;
+        int column = x / 32;
+        Tiles* temp = tiles[row][column];
+        if (clickType == "left" && !isPaused) {
+            if (!temp->getIsFlagged() && !temp->getIsShown()) {
+                Reveal(temp);
+                checkWin();
+            }
+        }
+        else if (clickType == "right" && !isPaused) {
+            Flag(temp);
+        }
+    }
+}
+
+
+void Board::Reveal(Tiles* tile) {
+    if (tile->getIsShown() || tile->getIsFlagged()) {
+        return;
+    }
+
+    tile->setShown(true);
+    setSprite(tile->getInitSprite(), shownTile);
+
+    if (tile->getIsMine()) {
+        lostGame();
+    }
+    else {
+        tilesLeft--;
+        if (tile->getAdjMines() == 0) {
+            vector<Tiles*>* neighbors = tile->getNeighbors();
+            int size = neighbors->size();
+            for (int i = 0; i < size; i++) {
+                Tiles* neighbor = neighbors->at(i);
+                Reveal(neighbor);
+                checkWin();
+            }
+        }
+    }
+}
+
+void Board::lostGame() {
+    isLost = true;
+    isDebug = false;
+    setSprite(&faceSprite, lostFace);
+}
+
+void Board::winGame() {
+    isWon = true;
+    isDebug = false;
+    setSprite(&faceSprite, winFace);
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
+            Tiles* tile = tiles[i][j];
+
+            if (tile->getIsShown()) {
+                tile->setFlag(false);
+            }
+            else {
+                tile->setFlag(true);
+            }
+        }
+    }
+}
+
+void Board::checkWin() {
+    int numRevealed = 0;
+    int numMines = 0;
+
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
+            Tiles* tile = tiles[i][j];
+            if (tile->getIsShown() && !tile->getIsMine()) {
+                numRevealed++;
+            }
+            else if (tile->getIsMine()) {
+                numMines++;
+            }
+        }
+    }
+
+    if (numRevealed == (numRows * numCols - numMines)) {
+        winGame();
+    }
+}
+
 void Board::setNeighbors() {
     for (int i = 0; i < numRows; i++) {
         for (int j = 0; j < numCols; j++) {
@@ -156,291 +469,6 @@ void Board::setNeighbors() {
                 else if (neighborCount == 8) {
                     setSprite(temp->getNextSprite(), number8);
                 }
-            }
-        }
-    }
-}
-
-void Board::setSprite(sf::Sprite* sprite, sf::Texture& text) {
-    sprite->setTexture(text);
-}
-
-// Functions
-
-void Board::drawBoard(sf::RenderWindow& window) {
-    for (int i = 0; i < numRows; i++) { // Might Change
-        for (int j = 0; j < numCols; j++) { // Might Change
-            Tiles* tile = tiles[i][j];
-            sf::Sprite* sprite = tile->getInitSprite();
-            sf::Sprite* sprite2 = tile->getNextSprite();
-
-            if (isLost) {
-                if (tile->getIsShown()) {
-                    window.draw(*sprite);
-                    window.draw(*sprite2);
-                }
-                else {
-                    if (tile->getIsMine()) {
-                        setSprite(sprite, shownTile);
-                        window.draw(*sprite);
-                        window.draw(*sprite2);
-                    }
-                    else {
-                        window.draw(*sprite);
-                    }
-                }
-            }
-            else if (isWon) {
-                if (tile->getIsShown()) {
-                    window.draw(*sprite);
-                    window.draw(*sprite2);
-                }
-                else {
-                    if (tile->getIsMine()) {
-                        window.draw(*sprite);
-                        window.draw(*tile->getFlagSprite());
-                    }
-                }
-            }
-            else {
-                if (isDebug) {
-                    window.draw(*sprite);
-                    if (tile->getIsMine() || tile->getIsShown()) {
-                        window.draw(*sprite2);
-                    }
-                    if (tile->getIsFlagged() && !tile->getIsShown()) {
-                        window.draw(*tile->getFlagSprite());
-                    }
-                }
-                else {
-                    if (tile->getIsShown()) {
-                        window.draw(*sprite);
-                        window.draw(*sprite2);
-                    }
-                    else {
-                        window.draw(*sprite);
-                        if (tile->getIsShown()) {
-                            window.draw(*tile->getFlagSprite());
-                        }
-                    }
-                }
-            }
-            if (tile->getIsFlagged() && !tile->getIsShown()) {
-				window.draw(*tile->getFlagSprite());
-			}
-            if (isPaused) {
-                setSprite(sprite, shownTile);
-                window.draw(*sprite);
-            }
-            if (!isPaused) {
-                if (!tile->getIsShown()) {
-					setSprite(sprite, hiddenTile);
-				}
-            }
-            if (tile->getIsFlagged() && !tile->getIsShown()) {
-                window.draw(*tile->getFlagSprite());
-            }
-        }
-    }
-    updateScore();
-    window.draw(faceSprite);
-    window.draw(debugSprite);
-    window.draw(pauseSprite);
-    window.draw(leaderboardSprite);
-    window.draw(scoreSprite1);
-    window.draw(scoreSprite2);
-    window.draw(scoreSprite3);
-}
-
-void Board::updateScore() {
-    int flagged = 0;
-    for (int i = 0; i < numRows; i++) { // Might change
-        for (int j = 0; j < numCols; j++) {
-            Tiles* temp = tiles[i][j];
-            if (temp->getIsFlagged()) {
-                flagged++;
-            }
-        }
-    }
-
-    int tempScore = mines - flagged;
-    score = to_string(tempScore) + "";
-    char hundreds = score[0];
-    if (hundreds == '-') {
-        scoreSprite1.setTextureRect(sf::IntRect(21 * 10, 0, 21, 32));
-    }
-    else {
-        int first = hundreds - 48;
-        scoreSprite1.setTextureRect(sf::IntRect(21 * first, 0, 21, 32));
-    }
-    char tens = score[1];
-    int second = tens - 48;
-    scoreSprite2.setTextureRect(sf::IntRect(21 * second, 0, 21, 32));
-    char ones = score[2];
-    int third = ones - 48;
-    scoreSprite3.setTextureRect(sf::IntRect(21 * third, 0, 21, 32));
-}
-
-void Board::addScore(int toAdd) {
-    int tempScore = stoi(score);
-    tempScore += toAdd;
-    score = "" + to_string(tempScore);
-}
-
-void Board::generateMines() {
-    srand(time(nullptr));
-    while (mines < minesMax) {
-        int i = rand() % numRows; // Might change
-        int j = rand() % numCols; // Might change
-        Tiles* tile = tiles[i][j];
-        if (!tile->getIsMine()) {
-            tile->createMine();
-            setSprite(tile->getNextSprite(), mine);
-            mines++;
-            remainingTiles--;
-        }
-    }
-}
-
-void Board::setup() {
-    isLost = false;
-    isWon = false;
-    remainingTiles = numRows * numCols; // Might change
-    setSprite(&faceSprite, happyFace);
-    loadFromFile("./files/board_config.cfg");
-    mines = 0;
-    generateMines();
-    setNeighbors();
-}
-
-void Board::loadFromFile(string fileName) {
-    // read numCols and numRows from .cfg file
-    ifstream file(fileName);
-    string line;
-    getline(file, line);
-    numCols = stoi(line);
-    getline(file, line);
-    numRows = stoi(line);
-    getline(file, line);
-    minesMax = stoi(line);
-
-    // add tiles to board
-    tiles.resize(numRows);
-    for (int i = 0; i < numRows; i++) {
-		tiles[i].resize(numCols);
-	}
-    for (int i = 0; i < numRows; i++) { // Might change
-    		for (int j = 0; j < numCols; j++) { // Might change
-                if (!tiles[i][j]) {
-				delete tiles[i][j];
-			}
-            			tiles[i][j] = new Tiles(hiddenTile, flag);
-            			tiles[i][j]->setpos(i * 32, j * 32);
-            		}
-    	}
-    generateMines();
-    setNeighbors();
-}
-
-void Board::onClick(int x, int y, string clickType) {
-    if (y > (32 * (numRows + 0.5f)) && y < (32 * (numRows + 0.5f) + 66)) {
-        if (x >= (((numCols / 2.0) * 32) - 32) && x <= (((numCols / 2.0) * 32) + 34)) {
-            setup();
-        }
-        else if (x >= ((numCols * 32) - 304) && x < ((numCols * 32) - 238) && !isLost && !isWon) {
-            if (isDebug) {
-                isDebug = false;
-            }
-            else {
-                isDebug = true;
-            }
-        }
-        else if (x >= ((numCols * 32) - 240) && x < ((numCols * 32) - 174) && !isLost && !isWon) {
-            if (isPaused) {
-                isPaused = false;
-                setSprite(&pauseSprite, pause);
-            }
-            else {
-				isPaused = true;
-                setSprite(&pauseSprite, play);
-                
-			}
-		}
-        else if (x >= ((numCols * 32) - 176) && x < ((numCols * 32) - 110) && !isLost && !isWon) {
-            if (!isLeaderboard) {
-                Leaderboard((16 * numCols), (numRows * 16) + 50);
-                isLeaderboard = false;
-            
-            }
-		}
-    }
-    else if (!isLost && !isWon) {
-        int row = y / 32;
-        int column = x / 32;
-        Tiles* temp = tiles[row][column];
-        if (clickType == "left" && !isPaused) {
-            if (!temp->getIsFlagged() && !temp->getIsShown()) {
-                onReveal(temp);
-            }
-        }
-        else if (clickType == "right" && !isPaused) {
-            toggleFlag(temp);
-        }
-    }
-}
-
-void Board::onReveal(Tiles* tile) {
-    tile->setShown(true);
-    setSprite(tile->getInitSprite(), shownTile);
-    if (tile->getIsMine()) {
-        endGame();
-    }
-    else {
-        remainingTiles--;
-        if (remainingTiles <= 0) {
-            winGame();
-        }
-        if (tile->getAdjMines() == 0) {
-            vector<Tiles*>* neighbors = tile->getNeighbors();
-            int size = neighbors->size();
-            for (int i = 0; i < size; i++) {
-                Tiles* neighbor = neighbors->at(i);
-                if (!neighbor->getIsShown()) {
-                    onReveal(neighbor);
-                }
-            }
-        }
-    }
-}
-
-void Board::toggleFlag(Tiles* tile) {
-    if (tile->getIsFlagged()) {
-        tile->setFlag(false);
-    }
-    else {
-        tile->setFlag(true);
-    }
-}
-
-void Board::endGame() {
-    isLost = true;
-    isDebug = false;
-    setSprite(&faceSprite, lostFace);
-}
-
-void Board::winGame() {
-    isWon = true;
-    isDebug = false;
-    setSprite(&faceSprite, winFace);
-    for (int i = 0; i < numRows; i++) {
-        for (int j = 0; j < numCols; j++) {
-            Tiles* tile = tiles[i][j];
-
-            if (tile->getIsShown()) {
-                tile->setFlag(false);
-            }
-            else {
-                tile->setFlag(true);
             }
         }
     }

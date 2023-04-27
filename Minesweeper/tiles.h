@@ -1,6 +1,5 @@
 #include <string>
 #include <vector>
-#include "TextureManager.h"
 #include <SFML/Graphics.hpp>
 
 class Tiles {
@@ -14,11 +13,18 @@ class Tiles {
 	sf::Sprite* flagSprite = new sf::Sprite;
 	sf::Texture& texture;
 public:
+	// constructor
 	Tiles(sf::Texture& texture, sf::Texture& flagTexture);
+
+	//setters
 	void setShown(bool isShown);
 	void setFlag(bool isFlagged);
 	void setMine(bool isMine);
 	void setNeighbors(std::vector<Tiles*>& adjTiles);
+
+	// methods
+	void setpos(int x, int y);
+	void createMine();
 
 	// getters
 	sf::Sprite* getInitSprite();
@@ -29,8 +35,4 @@ public:
 	bool getIsMine();
 	int getAdjMines();
 	std:: vector<Tiles*>* getNeighbors();
-
-	// methods
-	void setpos(int x, int y);
-	void createMine();
 };
